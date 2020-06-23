@@ -9,8 +9,8 @@ The project works in the sameway as Adobe Scan or CamScanner. It uses python and
 * Can use the webcam also but have to keep the threshold as minimum as possible for best effects.
 
 ## Pre-Requisites:
-*Python 3 installed
-*Opencv package installed
+* Python 3 installed
+* Opencv package installed
 
 ## Contributors:
 Tanisha Rakshit
