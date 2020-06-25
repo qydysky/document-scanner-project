@@ -1,27 +1,44 @@
 import cv2
 import numpy as np
 import utilis
+import sys
+import os
 
 #webcam= True
 path="testimage.jpg"
+
+if len(sys.argv) == 2:
+    path=str(sys.argv[1])
+    print("set path to :"+path)
+
+if os.path.isfile(path) == False:
+    print(path+" not exist.")
+    quit()
+
+sign=0
+thres=[200,200]
 #cap=cv2.VideoCapture(0)
 #cap.set(10,160)
-imgheight=500
-imgwidth=360
+img= cv2.imdecode(np.fromfile(path,dtype=np.uint8),-1)
+sp = img.shape
+if sp[0]<sp[1]:
+    img=utilis.rotate_bound(img,90)
+    imgwidth, imgheight = sp[0],sp[1]
+else:
+    imgheight, imgwidth = sp[0],sp[1]
+img=cv2.resize(img,(imgwidth,imgheight))
 
-utilis.initializeTrackbars()
+# utilis.initializeTrackbars()
 count=0
 
 while True:
 
 
     #if webcam:success, img=cap.read()
-    img=cv2.imread(path)
-    img=cv2.resize(img,(imgwidth,imgheight))
     imgblank = np.zeros((imgheight, imgwidth, 3), np.uint8)
     imgGray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     imgBlur=cv2.GaussianBlur(imgGray,(5,5),1)
-    thres=utilis.valTrackbars()
+    # thres=utilis.valTrackbars()
     imgthres=cv2.Canny(imgBlur,thres[0],thres[1])
     kernel=np.ones((5,5))
     imgdial=cv2.dilate(imgthres,kernel,iterations=2)
@@ -33,6 +50,30 @@ while True:
     cv2.drawContours(imgContours, contours, -1, (0, 255, 0), 10)
 
     biggest, maxArea = utilis.biggestContour(contours)
+
+    if (sign > -1) & (max(thres[0],thres[1]) < 255) :
+        passI=maxArea/imgwidth/imgheight
+        print(int(passI*100),"%"," thres=",thres)
+        if passI < 0.1 :
+            if sign == 1 :
+                #last recover
+                sign = -1
+                thres[0]-=1
+                thres[1]-=1
+            else:
+                #fast
+                thres[0]-=int(thres[0]/3)
+                thres[1]-=int(thres[1]/3)
+        else:
+            #slow recover
+            sign=1
+            thres[0]+=1
+            thres[1]+=1
+    else:
+        #end
+        sign = -2
+        print("ok")
+
     if biggest.size != 0:
         biggest = utilis.reorder(biggest)
         cv2.drawContours(imgBigContour, biggest, -1, (0, 255, 0), 20)
@@ -62,11 +103,11 @@ while True:
     lables = [["Original", "Gray", "Threshold", "Contours"],
               ["Biggest Contour", "Warp Prespective", "Warp Gray", "Adaptive Threshold"]]
 
-    stackedImage = utilis.stackImages(imageArray, 0.75)
+    stackedImage = utilis.stackImages(imageArray, 180/imgwidth)
     cv2.imshow("Result", stackedImage)
 
-    if cv2.waitKey(1) & 0xFF == ord('s'):
-        cv2.imwrite("Scanned/myImage" + str(count) + ".jpg", imgWarpColored)
+    if (cv2.waitKey(1) & 0xFF == ord('s')) | sign == -2:
+        cv2.imwrite("myImage" + str(count) + ".jpg", imgAdaptiveThre)
         cv2.rectangle(stackedImage, ((int(stackedImage.shape[1] / 2) - 230), int(stackedImage.shape[0] / 2) + 50),
                       (1100, 350), (0, 255, 0), cv2.FILLED)
         cv2.putText(stackedImage, "Scan Saved", (int(stackedImage.shape[1] / 2) - 200, int(stackedImage.shape[0] / 2)),
@@ -74,6 +115,6 @@ while True:
         cv2.imshow('Result', stackedImage)
         cv2.waitKey(300)
         count += 1
-
+        quit()
 
 
