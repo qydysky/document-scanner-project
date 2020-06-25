@@ -14,3 +14,6 @@ The project works in the sameway as Adobe Scan or CamScanner. It uses python and
 
 ## Contributors:
 Tanisha Rakshit
+
+## Sample:
+![](result/1.png)
