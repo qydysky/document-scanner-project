@@ -106,3 +106,8 @@ def rotate_bound(image, angle):
     M[0, 2] += (nW / 2) - cX
     M[1, 2] += (nH / 2) - cY
     return cv2.warpAffine(image, M, (nW, nH))
+
+
+def getImageVar(image):
+    imageVar = cv2.Laplacian(image, cv2.CV_64F).var()
+    return imageVar

@@ -87,7 +87,41 @@ while True:
         imgWarpColored = cv2.resize(imgWarpColored, (imgwidth, imgheight))
 
         imgWarpGray = cv2.cvtColor(imgWarpColored, cv2.COLOR_BGR2GRAY)
-        imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, 7, 2)
+        
+        if sign == -2 :
+            # imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, 7, 2)
+            block = 3
+            ImageVar = 0
+            while True :
+                imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, block, 2)
+                tmp_ImageVar = utilis.getImageVar(imgAdaptiveThre)
+                if (ImageVar == 0) | (tmp_ImageVar > ImageVar) :
+                    print(tmp_ImageVar,"block =",block)
+                    ImageVar = tmp_ImageVar
+                    block+=4
+                else:
+                    print("ok")
+                    imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, block-4, 2)
+                    break
+            ImageVar = 0
+            C = 2
+            min_var = [0,0]
+            while True :
+                imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, block, C)
+                tmp_ImageVar = utilis.getImageVar(imgAdaptiveThre)
+                if (ImageVar == 0) | (min_var[1] == 0) | (min_var[1] - min_var[0] > 0) :
+                    print(tmp_ImageVar,"C =",C)
+                    min_var[1] = min_var[0]
+                    min_var[0] = abs(tmp_ImageVar - ImageVar)
+                    ImageVar = tmp_ImageVar
+                    C+=1
+                else:
+                    print("ok")
+                    imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, block, C-1)
+                    break
+        else:
+            imgAdaptiveThre = cv2.adaptiveThreshold(imgWarpGray, 255, 1, 1, 7, 2)
+
         imgAdaptiveThre = cv2.bitwise_not(imgAdaptiveThre)
         imgAdaptiveThre = cv2.medianBlur(imgAdaptiveThre, 3)
 
