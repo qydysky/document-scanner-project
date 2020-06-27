@@ -1,3 +1,3 @@
 py .\scannerusingtestimage.py "%~1"
-.\myImage0.jpg
+.\myImage.jpg
 pause
