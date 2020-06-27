@@ -16,4 +16,4 @@ The project works in the sameway as Adobe Scan or CamScanner. It uses python and
 Tanisha Rakshit
 
 ## Sample:
-![](result/1.png)
+![](result/1.PNG)
